@@ -12,7 +12,7 @@
 
     // Set these to the payment cards accepted.
     // They will nearly always be the same.
-    supportedPaymentNetworks = @[PKPaymentNetworkVisa, PKPaymentNetworkMasterCard, PKPaymentNetworkAmex];
+    supportedPaymentNetworks = @[PKPaymentNetworkVisa, PKPaymentNetworkMasterCard, PKPaymentNetworkAmex, PKPaymentNetworkDiscover];
 
     // Set the capabilities that your merchant supports
     // Adyen for example, only supports the 3DS one.
@@ -384,7 +384,7 @@
 {
     self.paymentCallbackId = command.callbackId;
 
-    NSLog(@"Stripe deviceSupportsApplePay == %s", [Stripe deviceSupportsApplePay] ? "true" : "false");
+    NSLog(@"Stripe deviceSupportsApplePay == %s", [StripeAPI deviceSupportsApplePay] ? "true" : "false");
     NSLog(@"ApplePay canMakePayments == %s", [PKPaymentAuthorizationViewController canMakePayments]? "true" : "false");
     if ([PKPaymentAuthorizationViewController canMakePayments] == NO) {
         CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString: @"This device cannot make payments."];
@@ -398,7 +398,7 @@
     NSString * appleMerchantIdentifier = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"AppleMerchantIdentifier"];
     // Old version
     // PKPaymentRequest *request = [PKPaymentRequest new];
-    PKPaymentRequest *request = [Stripe paymentRequestWithMerchantIdentifier:appleMerchantIdentifier];
+    PKPaymentRequest *request = [StripeAPI paymentRequestWithMerchantIdentifier:appleMerchantIdentifier];
 
     // Different version of iOS support different networks, (ie Discover card is iOS9+; not part of my project, so ignoring).
     request.supportedNetworks = supportedPaymentNetworks;
@@ -594,12 +594,12 @@
 {
     NSLog(@"CDVApplePay: didAuthorizePayment");
 
-    [[STPAPIClient sharedClient] createTokenWithPayment:payment 
-                            completion:^(STPToken * _Nullable token, NSError * _Nullable error) {        
-        NSMutableDictionary* response = [self formatPaymentForApplication:payment];      
-        NSLog(@"Stripe token == %@", token.tokenId);        
-        if (token) {
-            [response setObject:token.tokenId forKey:@"stripeToken"];
+    [[STPAPIClient sharedClient] createPaymentMethodWithPayment:payment completion:^(STPPaymentMethod * _Nullable method, NSError * _Nullable error) {
+        NSMutableDictionary* response = [self formatPaymentForApplication:payment];
+        NSLog(@"payment method====> %@", method);
+        NSLog(@"create peyment method error == %@",error);
+        if (method) {
+            [response setObject:method.stripeId forKey:@"stripeToken"];
         }
         CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:response];
         [self.commandDelegate sendPluginResult:result callbackId:self.paymentCallbackId];

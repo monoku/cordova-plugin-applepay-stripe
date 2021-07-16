@@ -6,7 +6,7 @@
     <name>Apple Pay with Stripe</name>
     <description>Implements Apple Pay with Stripe.</description>
     <keywords>cordova,payment,apple pay,stripe</keywords>
-    <repo>https://github.com/monoku/cordova-plugin-applepay-stripe</repo>
+    <repo>https://github.com/ricepo/cordova-plugin-applepay-stripe</repo>
 
     <preference name="STRIPE_LIVE_PUBLISHABLE_KEY" />
     <preference name="STRIPE_TEST_PUBLISHABLE_KEY" />
@@ -40,10 +40,21 @@
         <config-file target="*-Info.plist" parent="AppleMerchantIdentifier">
             <string>$APPLE_MERCHANT_IDENTIFIER</string>
         </config-file>
+	
+	
+        <config-file target="*.entitlements" parent="com.apple.developer.in-app-payments">
+            <array>
+                <string>$APPLE_MERCHANT_IDENTIFIER</string>
+            </array>
+        </config-file>
+
+
 
         <!-- Stripe iOS Framework -->
         <!-- Downloaded here: https://github.com/stripe/stripe-ios/releases/latest -->
-        <framework src="src/ios/libs/Stripe.framework" custom="true" />
+        <framework src="src/ios/libs/Stripe.xcframework" custom="true" embed="true" />
+        <framework src="src/ios/libs/Stripe3DS2.xcframework" custom="true" embed="true" />
+        <framework src="src/ios/libs/StripeCore.xcframework" custom="true" embed="true" />
     </platform>
 
 </plugin>
